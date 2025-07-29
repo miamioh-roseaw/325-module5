@@ -1,34 +1,50 @@
 from nornir import InitNornir
 from nornir_netmiko.tasks import netmiko_send_command
 from nornir_utils.plugins.functions import print_result
-
 import os
 
-# Confirm Jenkins working directory (for file visibility)
-print(f"[DEBUG] Working directory: {os.getcwd()}")
+print("[DEBUG] Jenkins Working Directory:", os.getcwd())
+print("[DEBUG] Env Username:", os.getenv("CISCO_CREDS_USR"))
+print("[DEBUG] Env Password:", os.getenv("CISCO_CREDS_PSW"))
 
-# Initialize Nornir using your config.yaml file
-nr = InitNornir(config_file="config.yaml")
+# Initialize Nornir using config.yaml
+try:
+    nr = InitNornir(config_file="config.yaml")
+except Exception as e:
+    print(f"[FATAL] Nornir initialization failed: {e}")
+    exit(1)
 
-# Define the function that will run on each host
 def get_uptime(task):
     try:
-        # Run Netmiko command to get uptime info
-        result = task.run(task=netmiko_send_command, command_string="show version | include uptime")
+        print(f"[INFO] Connecting to {task.host.name} ({task.host.hostname})")
 
-        # Display the result in Jenkins logs
-        print(f"[INFO] {task.host.name} uptime: {result.result}")
+        # Run command to get uptime line from show version
+        result = task.run(
+            name="Get Uptime",
+            task=netmiko_send_command,
+            command_string="show version | include uptime"
+        )
 
-        # Save result to a uniquely named output file in current directory
-        file_path = f"{task.host.name}_uptime.txt"
-        with open(file_path, "w") as f:
-            f.write(result.result)
+        if result.failed:
+            print(f"[ERROR] Task failed on {task.host.name}")
+            return
 
-        print(f"[SUCCESS] Saved uptime info to {file_path}")
+        output = result.result
+        print(f"[INFO] {task.host.name} uptime output:\n{output}")
+
+        # Write to file
+        filename = f"{task.host.name}_uptime.txt"
+        with open(filename, "w") as f:
+            f.write(output)
+        print(f"[SUCCESS] Saved to {filename}")
 
     except Exception as e:
-        print(f"[ERROR] Failed to process {task.host.name}: {e}")
+        print(f"[EXCEPTION] {task.host.name}: {e}")
 
-# Run the task across all defined hosts
-print("[INFO] Starting uptime collection using Nornir...")
-nr.run(task=get_uptime)
+# Execute across inventory
+print("[INFO] Running Nornir uptime collection...")
+try:
+    results = nr.run(task=get_uptime)
+    print_result(results)
+except Exception as e:
+    print(f"[FATAL] Nornir execution failed: {e}")
