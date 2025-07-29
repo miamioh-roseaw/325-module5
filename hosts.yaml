@@ -1,5 +1,5 @@
-mgmt-rtr:
-  hostname: 10.10.10.1
+mid-rtr:
+  hostname: 10.10.10.4
   username: "{{ env(CISCO_CREDS_USR) }}"
   password: "{{ env(CISCO_CREDS_PSW) }}"
   platform: cisco_ios
