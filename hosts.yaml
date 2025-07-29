@@ -1,0 +1,17 @@
+mgmt-rtr:
+  hostname: 10.10.10.1
+  username: "{{ env(CISCO_CREDS_USR) }}"
+  password: "{{ env(CISCO_CREDS_PSW) }}"
+  platform: cisco_ios
+
+reg-rtr:
+  hostname: 10.10.10.2
+  username: "{{ env(CISCO_CREDS_USR) }}"
+  password: "{{ env(CISCO_CREDS_PSW) }}"
+  platform: cisco_ios
+
+ham-rtr:
+  hostname: 10.10.10.3
+  username: "{{ env(CISCO_CREDS_USR) }}"
+  password: "{{ env(CISCO_CREDS_PSW) }}"
+  platform: cisco_ios
