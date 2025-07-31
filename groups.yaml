@@ -1,4 +1,2 @@
-all:
-  groups:
-    ios_devices:
-      platform: ios
+ios_devices:
+  platform: ios
