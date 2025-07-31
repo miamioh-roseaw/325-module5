@@ -1,0 +1,4 @@
+all:
+  groups:
+    ios_devices:
+      platform: ios
