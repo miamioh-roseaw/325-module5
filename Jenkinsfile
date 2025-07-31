@@ -34,8 +34,8 @@ pipeline {
                 ]) {
                     sh '''
                         echo "[INFO] Running Nornir uptime collection..."
-                        export CISCO_USER="${CISCO_USER}"
-                        export CISCO_PASS="${CISCO_PASS}"
+                        export CISCO_CREDS_USR="${CISCO_USER}"
+                        export CISCO_CREDS_PSW="${CISCO_PASS}"
 
                         python3 ${SCRIPT}
                     '''
