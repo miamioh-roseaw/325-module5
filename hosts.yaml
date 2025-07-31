@@ -1,3 +1,5 @@
+hosts:
+
 mgmt-rtr:
   hostname: 10.10.10.1
 reg-rtr:
