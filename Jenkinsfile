@@ -17,38 +17,21 @@ pipeline {
                         wget https://bootstrap.pypa.io/get-pip.py -O get-pip.py
                         python3 get-pip.py --user
                     fi
-
-                    ~/.local/bin/pip3 install --user nornir nornir-netmiko nornir-utils netmiko
+                    ~/.local/bin/pip3 install --user nornir nornir-netmiko nornir-utils netmiko paramiko
                 '''
             }
         }
 
         stage('Run Nornir Script') {
             steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'cisco-ssh-creds',
-                        usernameVariable: 'CISCO_USER',
-                        passwordVariable: 'CISCO_PASS'
-                    )
-                ]) {
+                withCredentials([usernamePassword(credentialsId: 'cisco-ssh-creds', usernameVariable: 'CISCO_USER', passwordVariable: 'CISCO_PASS')]) {
                     sh '''
                         echo "[INFO] Running Nornir uptime collection..."
-                        export CISCO_CREDS_USR="${CISCO_USER}"
-                        export CISCO_CREDS_PSW="${CISCO_PASS}"
-
+                        export CISCO_USER="${CISCO_USER}"
+                        export CISCO_PASS="${CISCO_PASS}"
                         python3 ${SCRIPT}
                     '''
                 }
-            }
-        }
-
-        stage('Check for Outputs') {
-            steps {
-                sh '''
-                    echo "[INFO] Checking for generated uptime files..."
-                    ls *_uptime.txt || echo "[WARNING] No uptime output files were generated."
-                '''
             }
         }
 
@@ -57,10 +40,10 @@ pipeline {
                 script {
                     def artifactsExist = sh(script: "ls *_uptime.txt 2>/dev/null || true", returnStdout: true).trim()
                     if (artifactsExist) {
-                        echo "[INFO] Archiving artifacts..."
+                        echo "[INFO] Archiving uptime result files..."
                         archiveArtifacts artifacts: '*_uptime.txt', allowEmptyArchive: false
                     } else {
-                        echo "[WARNING] No artifacts found to archive."
+                        echo "[WARNING] No uptime files were generated to archive."
                     }
                 }
             }
@@ -69,10 +52,10 @@ pipeline {
 
     post {
         failure {
-            echo "[ERROR] Jenkins pipeline failed."
+            echo "[ERROR] Pipeline failed."
         }
         always {
-            echo "[INFO] Pipeline finished."
+            echo "[INFO] Pipeline completed."
         }
     }
 }
