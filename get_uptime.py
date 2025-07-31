@@ -19,8 +19,8 @@ logging.basicConfig(level=logging.INFO)
 
 nr = InitNornir(config_file="config.yaml")
 
-nr.inventory.defaults.username = student
-nr.inventory.defaults.password = Passw0rd!
+nr.inventory.defaults.username = username
+nr.inventory.defaults.password = password
 
 def get_uptime(task):
     result = task.run(task=netmiko_send_command, command_string="show version | include uptime")
