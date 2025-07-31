@@ -1,2 +1,6 @@
-username: ""
-password: ""
+username: ${CISCO_USER}
+password: ${CISCO_PASS}
+connection_options:
+  netmiko:
+    extras:
+      secret: ${CISCO_PASS}
