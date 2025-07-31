@@ -3,9 +3,6 @@ import paramiko
 from nornir import InitNornir
 from nornir_netmiko.tasks import netmiko_send_command
 
-# Optional debug logging (can remove in production)
-paramiko.common.logging.basicConfig(level=paramiko.common.DEBUG)
-
 # Patch Paramiko to allow legacy key exchange algorithms
 paramiko.transport.Transport._preferred_kex = (
     'diffie-hellman-group14-sha1',
