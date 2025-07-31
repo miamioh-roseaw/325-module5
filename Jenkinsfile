@@ -24,17 +24,22 @@ pipeline {
         }
 
         stage('Run Nornir Script') {
-            environment {
-                CISCO_CREDS = credentials('cisco-ssh-creds')
-            }
             steps {
-                sh '''
-                    echo "[INFO] Running Nornir uptime collection..."
-                    export CISCO_CREDS_USR="${CISCO_CREDS_USR}"
-                    export CISCO_CREDS_PSW="${CISCO_CREDS_PSW}"
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'cisco-ssh-creds',
+                        usernameVariable: 'CISCO_USER',
+                        passwordVariable: 'CISCO_PASS'
+                    )
+                ]) {
+                    sh '''
+                        echo "[INFO] Running Nornir uptime collection..."
+                        export CISCO_USER="${CISCO_USER}"
+                        export CISCO_PASS="${CISCO_PASS}"
 
-                    python3 ${SCRIPT}
-                '''
+                        python3 ${SCRIPT}
+                    '''
+                }
             }
         }
 
