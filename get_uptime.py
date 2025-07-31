@@ -1,35 +1,78 @@
-import logging
-import paramiko
-from nornir import InitNornir
-from nornir_netmiko.tasks import netmiko_send_command
+pipeline {
+    agent any
 
-# Logging config
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+    environment {
+        SCRIPT = 'get_uptime.py'
+        PATH = "${HOME}/.local/bin:${env.PATH}"
+        PYTHONPATH = "${HOME}/.local/lib/python3.10/site-packages"
+    }
 
-# Patch Paramiko for legacy kex
-paramiko.transport.Transport._preferred_kex = (
-    'diffie-hellman-group14-sha1',
-    'diffie-hellman-group1-sha1',
-    'diffie-hellman-group-exchange-sha1',
-)
+    stages {
+        stage('Install Nornir and Dependencies') {
+            steps {
+                sh '''
+                    echo "[INFO] Installing Python packages..."
+                    if ! command -v pip3 > /dev/null; then
+                        echo "[INFO] pip3 not found. Installing..."
+                        wget https://bootstrap.pypa.io/get-pip.py -O get-pip.py
+                        python3 get-pip.py --user
+                    fi
 
-# Init Nornir
-nr = InitNornir(config_file="config.yaml")
+                    ~/.local/bin/pip3 install --user nornir nornir-netmiko nornir-utils netmiko
+                '''
+            }
+        }
 
-def get_uptime(task):
-    logger.info(f"[INFO] Running uptime check on {task.host.hostname} ({task.host.hostname})")
-    try:
-        result = task.run(task=netmiko_send_command, command_string="show version | include uptime")
-        output = result.result.strip()
-        logger.info(f"[SUCCESS] {task.host.name} uptime: {output}")
+        stage('Run Nornir Script') {
+            steps {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'cisco-ssh-creds',
+                        usernameVariable: 'CISCO_USER',
+                        passwordVariable: 'CISCO_PASS'
+                    )
+                ]) {
+                    sh '''
+                        echo "[INFO] Running Nornir uptime collection..."
+                        export CISCO_CREDS_USR="${CISCO_USER}"
+                        export CISCO_CREDS_PSW="${CISCO_PASS}"
 
-        # Write to file
-        with open(f"{task.host}_uptime.txt", "w") as f:
-            f.write(output + "\n")
+                        python3 ${SCRIPT}
+                    '''
+                }
+            }
+        }
 
-    except Exception as e:
-        logger.error(f"[ERROR] {task.host.name} failed: {str(e)}")
+        stage('Check for Outputs') {
+            steps {
+                sh '''
+                    echo "[INFO] Checking for generated uptime files..."
+                    ls *_uptime.txt || echo "[WARNING] No uptime output files were generated."
+                '''
+            }
+        }
 
-# Run it
-nr.run(task=get_uptime)
+        stage('Archive Outputs') {
+            steps {
+                script {
+                    def artifactsExist = sh(script: "ls *_uptime.txt 2>/dev/null || true", returnStdout: true).trim()
+                    if (artifactsExist) {
+                        echo "[INFO] Archiving artifacts..."
+                        archiveArtifacts artifacts: '*_uptime.txt', allowEmptyArchive: false
+                    } else {
+                        echo "[WARNING] No artifacts found to archive."
+                    }
+                }
+            }
+        }
+    }
+
+    post {
+        failure {
+            echo "[ERROR] Jenkins pipeline failed."
+        }
+        always {
+            echo "[INFO] Pipeline finished."
+        }
+    }
+}
