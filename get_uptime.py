@@ -12,8 +12,8 @@ paramiko.transport.Transport._preferred_kex = (
 )
 
 # Credentials from environment
-username = os.getenv("CISCO_USER")
-password = os.getenv("CISCO_PASS")
+username = os.getenv("CISCO_SSH_USER")
+password = os.getenv("CISCO_SSH_PASS")
 
 logging.basicConfig(level=logging.INFO)
 
