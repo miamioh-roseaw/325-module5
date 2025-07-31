@@ -3,22 +3,33 @@ import paramiko
 from nornir import InitNornir
 from nornir_netmiko.tasks import netmiko_send_command
 
-# Patch Paramiko to allow legacy key exchange algorithms
+# Logging config
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Patch Paramiko for legacy kex
 paramiko.transport.Transport._preferred_kex = (
     'diffie-hellman-group14-sha1',
     'diffie-hellman-group1-sha1',
     'diffie-hellman-group-exchange-sha1',
 )
 
-# Initialize Nornir from config file
+# Init Nornir
 nr = InitNornir(config_file="config.yaml")
 
-# Define the task to run on each host
 def get_uptime(task):
-    result = task.run(task=netmiko_send_command, command_string="show version | include uptime")
-    output_file = f"{task.host}_uptime.txt"
-    with open(output_file, "w") as f:
-        f.write(result.result)
+    logger.info(f"[INFO] Running uptime check on {task.host.hostname} ({task.host.hostname})")
+    try:
+        result = task.run(task=netmiko_send_command, command_string="show version | include uptime")
+        output = result.result.strip()
+        logger.info(f"[SUCCESS] {task.host.name} uptime: {output}")
 
-# Run the task across inventory
+        # Write to file
+        with open(f"{task.host}_uptime.txt", "w") as f:
+            f.write(output + "\n")
+
+    except Exception as e:
+        logger.error(f"[ERROR] {task.host.name} failed: {str(e)}")
+
+# Run it
 nr.run(task=get_uptime)
