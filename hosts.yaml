@@ -1,14 +1,34 @@
 mgmt-rtr:
   hostname: 10.10.10.1
+  groups:
+    - ios_devices
+
 reg-rtr:
   hostname: 10.10.10.2
+  groups:
+    - ios_devices
+
 ham-rtr:
   hostname: 10.10.10.3
+  groups:
+    - ios_devices
+
 mid-rtr:
   hostname: 10.10.10.4
+  groups:
+    - ios_devices
+
 mgmt-sw:
   hostname: 10.10.10.5
+  groups:
+    - ios_devices
+
 ham-sw:
   hostname: 10.10.10.6
+  groups:
+    - ios_devices
+
 mid-sw:
   hostname: 10.10.10.7
+  groups:
+    - ios_devices
