@@ -1,69 +1,14 @@
 mgmt-rtr:
   hostname: 10.10.10.1
-  platform: cisco_ios
-  username: "{{ env(CISCO_CREDS_USR) }}"
-  password: "{{ env(CISCO_CREDS_PSW) }}"
-  connection_options:
-    netmiko:
-      extras:
-        secret: "{{ env(CISCO_CREDS_PSW) }}"
-
 reg-rtr:
   hostname: 10.10.10.2
-  platform: cisco_ios
-  username: "{{ env(CISCO_CREDS_USR) }}"
-  password: "{{ env(CISCO_CREDS_PSW) }}"
-  connection_options:
-    netmiko:
-      extras:
-        secret: "{{ env(CISCO_CREDS_PSW) }}"
-
 ham-rtr:
   hostname: 10.10.10.3
-  platform: cisco_ios
-  username: "{{ env(CISCO_CREDS_USR) }}"
-  password: "{{ env(CISCO_CREDS_PSW) }}"
-  connection_options:
-    netmiko:
-      extras:
-        secret: "{{ env(CISCO_CREDS_PSW) }}"
-
 mid-rtr:
   hostname: 10.10.10.4
-  platform: cisco_ios
-  username: "{{ env(CISCO_CREDS_USR) }}"
-  password: "{{ env(CISCO_CREDS_PSW) }}"
-  connection_options:
-    netmiko:
-      extras:
-        secret: "{{ env(CISCO_CREDS_PSW) }}"
-
 mgmt-sw:
   hostname: 10.10.10.5
-  platform: cisco_ios
-  username: "{{ env(CISCO_CREDS_USR) }}"
-  password: "{{ env(CISCO_CREDS_PSW) }}"
-  connection_options:
-    netmiko:
-      extras:
-        secret: "{{ env(CISCO_CREDS_PSW) }}"
-
 ham-sw:
   hostname: 10.10.10.6
-  platform: cisco_ios
-  username: "{{ env(CISCO_CREDS_USR) }}"
-  password: "{{ env(CISCO_CREDS_PSW) }}"
-  connection_options:
-    netmiko:
-      extras:
-        secret: "{{ env(CISCO_CREDS_PSW) }}"
-
 mid-sw:
   hostname: 10.10.10.7
-  platform: cisco_ios
-  username: "{{ env(CISCO_CREDS_USR) }}"
-  password: "{{ env(CISCO_CREDS_PSW) }}"
-  connection_options:
-    netmiko:
-      extras:
-        secret: "{{ env(CISCO_CREDS_PSW) }}"
